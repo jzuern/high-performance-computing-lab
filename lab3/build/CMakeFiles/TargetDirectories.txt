@@ -1,0 +1,3 @@
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab3/build/CMakeFiles/edit_cache.dir
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab3/build/CMakeFiles/rebuild_cache.dir
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab3/build/CMakeFiles/hpc.mpi.dir
