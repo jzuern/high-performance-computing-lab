@@ -1,0 +1,3 @@
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/build/CMakeFiles/edit_cache.dir
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/build/CMakeFiles/rebuild_cache.dir
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/build/CMakeFiles/hpc.omp.dir

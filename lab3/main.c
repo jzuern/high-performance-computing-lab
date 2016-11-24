@@ -61,13 +61,13 @@ int main(int argc, char** argv) {
     Field_init(&field, simdata.gsizes, boundarysize);
 
 
-    srand(mpidata.rank); // (?)
+    srand(mpidata.rank);
 
     // 4. Use a filling.
     Filling_binaryRandomizeFrame(&field, ALIVE);
 
     // 5. Exchange the ghost layers.
-    //MPIData_exchangeGhostLayer(&mpidata, &field);
+    MPIData_exchangeGhostLayer(&mpidata, &field);
 
     // 6. Swap the fields.
     Field_swap(&field);
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
     // 5.1 Call the iterator
     sweeps[simdata.sweep_num].exec(&field, &simdata);
 
-      // 7.2 Exchange the ghost layers
+      // 7.2 Exchange the ghost layers. TODO: implement
       //MPIData_exchangeGhostLayer(&mpidata, &field);
 
       // 7.3 Swap the fields

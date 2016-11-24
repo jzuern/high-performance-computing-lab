@@ -1,0 +1,166 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.c
+stdlib.h
+-
+endian.h
+-
+field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+simdata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/filling.c
+stdlib.h
+-
+stdio.h
+-
+filling.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/filling.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/filling.h
+field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/main.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+stdbool.h
+-
+math.h
+-
+sys/time.h
+-
+field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+filling.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/filling.h
+simdata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+sweeps/gameoflife.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/gameoflife.h
+sweeps/add.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/add.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+simdata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+vtk.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/vtk.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/add.c
+add.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/add.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/add.h
+../field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+../simdata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/gameoflife.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+stdbool.h
+-
+math.h
+-
+gameoflife.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/gameoflife.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/gameoflife.h
+../field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+../simdata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/heat.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+stdbool.h
+-
+math.h
+-
+heat.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/heat.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/heat.h
+../field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+../simdata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/mandelbrot.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+stdbool.h
+-
+math.h
+-
+mandelbrot.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/mandelbrot.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/sweeps/mandelbrot.h
+../field.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/field.h
+../simdata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/simdata.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/vtk.c
+stdio.h
+-
+stdlib.h
+-
+stdbool.h
+-
+string.h
+-
+errno.h
+-
+endian.h
+-
+math.h
+-
+vtk.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/vtk.h
+
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab1/all_in_one/vtk.h
+stdio.h
+-
+stdbool.h
+-
+
