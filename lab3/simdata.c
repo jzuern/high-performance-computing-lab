@@ -27,16 +27,21 @@ void SimData_init(SimData* simdata, int argc, char** argv) {
 
     exit(EXIT_FAILURE);
   }
-  simdata->sweep_num = strtol(argv[1], NULL, 10);
-  simdata->blocks[X] = strtol(argv[2], NULL, 10);
-  simdata->blocks[Y] = strtol(argv[3], NULL, 10);
-  simdata->lsizes[X] = strtol(argv[4], NULL, 10); // local array
-  simdata->lsizes[Y] = strtol(argv[5], NULL, 10);
-  simdata->timesteps = strtol(argv[6], NULL, 10);
+
+  simdata->sweep_num = atoi(argv[1]);
+  simdata->blocks[X] = atoi(argv[2]);
+  simdata->blocks[Y] = atoi(argv[3]);
+  simdata->lsizes[X] = atoi(argv[4]); // local array
+  simdata->lsizes[Y] = atoi(argv[5]);
+  simdata->timesteps = atoi(argv[6]);
   simdata->timestep  = 0;
 
   simdata->gsizes[X] = simdata->lsizes[X] * simdata->blocks[X];
   simdata->gsizes[Y] = simdata->lsizes[Y] * simdata->blocks[Y];
+
+  printf(" in simdata.c: simdata->lsizes[X] = %i\n", simdata->lsizes[X]);
+  printf(" in simdata.c: simdata->gsizes[X] = %i\n", simdata->gsizes[X]);
+
 
   // Copy the filename
   len = strlen(argv[7]) + 1;

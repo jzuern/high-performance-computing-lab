@@ -20,9 +20,9 @@ typedef struct SimData {
   int   blocks[2];  // number of blocks in X/Y-direction
   int   lsizes[2];  // local number of cells in X/Y-direction
   int   gsizes[2];  // global number of cells in X/Y-direction
-  long  timesteps;  // number of frames
-  long  timestep;   // The current timestep 
-  long  sweep_num;  // The selected sweep
+  int  timesteps;  // number of frames
+  int  timestep;   // The current timestep
+  int  sweep_num;  // The selected sweep
   char *output;     // name of the output file
 #ifndef MPI
   VTK   vtk;        // The VTK output image
@@ -30,7 +30,7 @@ typedef struct SimData {
 } SimData;
 
 /* Initializes the simdata object and reads the command line arguments.
- * 
+ *
  * argc              The argument count from the main-function.
  * argv              The arguments from the main-function.
  */
@@ -42,7 +42,7 @@ void SimData_deinit(SimData* simdata);
 
 #ifndef MPI
 /* Write a time step to the file system.
- * 
+ *
  * simdata            The current SimData object.
  * field              The Field object to write
  * float_values       If true, the data is written as floats, otherwise as integer.

@@ -13,7 +13,11 @@
 
 #include "gameoflife.h"
 
-void gameoflife_sweep(Field* field, SimData* simdata) {
+void gameoflife_sweep(Field* field, SimData* simdata,MPIData* mpidata) {
+
+
+  // printf("Hello from gameoflife_sweep\n");
+
 
   int x, y, ii, jj;
   int boundarysizeX = field->boundarysize[X];
@@ -23,58 +27,64 @@ void gameoflife_sweep(Field* field, SimData* simdata) {
   int w = field->size[X];
   int h = field->size[Y];
 
-  //#pragma omp for collapse(2) private(x,y)
-  for (y = boundarysizeY; y < simdata->gsizes[Y]-boundarysizeY; y++) {
-    for (x = boundarysizeX; x < simdata->gsizes[X]-boundarysizeX; x++) {
+  // printf("local field size is %i x %i cells\n", w,h);
 
-	counter = 0;
 
-        // get neighboring cells
-        for (ii = -1; ii <= 1; ii++){
-          for (jj = -1; jj <= 1; jj++){
-            if((ii) == 0 && (jj == 0)) continue; // dont check cell itself
+  // for (y = boundarysizeY; y < simdata->lsizes[Y]-boundarysizeY; y++) {
+  //   for (x = boundarysizeX; x < simdata->lsizes[X]-boundarysizeX; x++) {
 
-            index_x = x + jj;
-            index_y = y + ii;
+  for (y = -1; y < (h+1); y++) {
+    for (x = -1; x < (w+1); x++) {
 
-            // apply periodic boundary
-            if (index_x < 0){ // x direction
-              index_x += w;
-            } else if(index_x >= w){
-              index_x -= w;
-            }
+      Field_setCell(field, x,y, 1+mpidata->rank);
 
-            if (index_y < 0){ // y direction
-              index_y += h;
-            } else if(index_y >= h){
-              index_y -= h;
-            }
-
-            if (Field_getCell(field, index_x, index_y) == ALIVE){
-              counter += 1;
-            }
-          }
-        }
-
-        if (Field_getCell(field, x, y)  == ALIVE){ // cell ALIVE
-          if((counter == 2) || (counter == 3) ){
-            Field_setCell(field, x, y, ALIVE);
-          } else{
-            Field_setCell(field, x, y, DEAD);
-          }
-
-        } else if (Field_getCell(field, x, y)  == DEAD){ // cell DEAD
-          if(counter == 3) {
-            Field_setCell(field, x, y, ALIVE);
-          }else{
-            Field_setCell(field, x, y, DEAD);
-          }
-        }
-        else{
-          printf("something is wrong\n");
-          exit(0);
-        }
+	    //  counter = 0;
+       //
+      //   // get neighboring cells
+      //   for (ii = -1; ii <= 1; ii++){
+      //     for (jj = -1; jj <= 1; jj++){
+      //       if((ii) == 0 && (jj == 0)) continue; // dont check cell itself
+       //
+      //       index_x = x + jj;
+      //       index_y = y + ii;
+       //
+      //       // apply periodic boundary
+      //       if (index_x < 0){ // x direction
+      //         index_x += w;
+      //       } else if(index_x >= w){
+      //         index_x -= w;
+      //       }
+       //
+      //       if (index_y < 0){ // y direction
+      //         index_y += h;
+      //       } else if(index_y >= h){
+      //         index_y -= h;
+      //       }
+       //
+      //       if (Field_getCell(field, index_x, index_y) == ALIVE){
+      //         counter += 1;
+      //       }
+      //     }
+      //   }
+       //
+      //   if (Field_getCell(field, x, y)  == ALIVE){ // cell ALIVE
+      //     if((counter == 2) || (counter == 3) ){
+      //       Field_setCell(field, x, y, ALIVE);
+      //     } else{
+      //       Field_setCell(field, x, y, DEAD);
+      //     } // cell ALIVE
+       //
+      //   } else if (Field_getCell(field, x, y)  == DEAD){ // cell DEAD
+      //     if(counter == 3) {
+      //       Field_setCell(field, x, y, ALIVE);
+      //     }else{
+      //       Field_setCell(field, x, y, DEAD);
+      //     }
+      //   } // cell DEAD
     }
   }
+
+  // printf("bye from gameoflife_sweep\n");
+
 
 }

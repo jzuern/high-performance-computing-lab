@@ -43,7 +43,7 @@ void VTK_readDimensions(VTK* self) {
   char        line[2048];
   const char  s[]        = "DIMENSIONS";
   char       *p;
-  
+
   while (fgets(line, sizeof(line), self->fp) != NULL) {
     if (strncmp(line, s, sizeof(s) - 1) == 0) {
       self->size[0] = strtol(line + sizeof(s), &p, 10);
@@ -57,14 +57,14 @@ long VTK_readSize(VTK* self) {
   char       line[2048];
   const char s[]        = "POINT_DATA";
   long       result     = -1;
-  
+
   while (fgets(line, sizeof(line), self->fp) != NULL) {
     if (strncmp(line, s, sizeof(s) - 1) == 0) {
       result = strtol(line + sizeof(s), NULL, 10);
       break;
     }
   }
-  
+
   return result;
 }
 
@@ -82,7 +82,7 @@ void VTK_finishHeader(VTK* self) {
 
 void VTK_readDataRow(VTK* self, int* data) {
   long i;
-  
+
   // read the file content
   if (self->size[0] != fread(data, sizeof(int), self->size[0], self->fp)) {
     fprintf(stderr, "%s: Unable to read a full data row from file\n", __FUNCTION__);
@@ -102,7 +102,7 @@ char* VTK_getFileName(VTK* self, long frame, char* buffer, size_t len) {
 
 void VTK_open(VTK* self, long frame, const char* mode) {
   char filename[2048];
-  
+
   VTK_getFileName(self, frame, filename, sizeof(filename));
   VTK_openFileName(self, filename, mode);
 }
@@ -117,12 +117,12 @@ void VTK_openFileName(VTK* self, char* filename, const char* mode) {
 bool VTK_checkFileType(VTK* self) {
   char line[2048];
   const char s[] = "# vtk DataFile Version 3.0\n";
-  
+
   if (fgets(line, sizeof(line), self->fp) == NULL) {
     fprintf(stderr, "%s: Unable to read from current file handle.\n", __FUNCTION__);
     exit(EXIT_FAILURE);
   }
-  
+
   return strcmp(line, s) == 0;
 }
 
@@ -150,9 +150,12 @@ void VTK_writeData(VTK* self, int* data) {
   int         value;
   long        i;
   const long  nxy = self->size[0] * self->size[1];
-  
+
   for (i = 0; i < nxy; i++) {
-    value = htobe32(data[i]);
+    // value = htobe32(data[i]);
+    // fwrite(&value, sizeof(int), 1, self->fp);
+    value = data[i];
+    printf("VTK write\n");
     fwrite(&value, sizeof(int), 1, self->fp);
   }
 }
@@ -175,14 +178,18 @@ static size_t VTK_getHeader_internal(VTK* self, long frame, char header[2048], l
   strcat(header, float_values ? "SCALARS data float 1\n" : "SCALARS data int 1\n");
   strcat(header, "LOOKUP_TABLE default\n");
 
-  return strlen(header);
+  size_t realLength = strlen(header)-140;
+
+  printf("header length = %i\n", strlen(header));
+
+  return realLength;
 }
 
 size_t VTK_getHeader(VTK* self, long frame, char header[2048], long framecount) {
+  printf("getting int header\n");
   return VTK_getHeader_internal(self, frame, header, framecount, false);
 }
 
 size_t VTK_getHeader_f(VTK* self, long frame, char header[2048], long framecount) {
   return VTK_getHeader_internal(self, frame, header, framecount, true);
 }
-

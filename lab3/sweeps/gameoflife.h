@@ -9,6 +9,7 @@
 
 #include "../field.h"
 #include "../simdata.h"
+#include "../mpidata.h"
 
 /* A cell which is alive.
  */
@@ -20,7 +21,7 @@
 
 /* Calulates one generation in Game Of Life.
  */
-void gameoflife_sweep(Field* field, SimData* simdata);
+void gameoflife_sweep(Field* field, SimData* simdata, MPIData* mpidata);
 
 
 #endif

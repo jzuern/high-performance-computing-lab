@@ -12,13 +12,13 @@ void Filling_produceRunner(Field* field, int value, int xpos, int ypos) {
   long x, y;
   //int boundary_x = (Field_getSizeInDim(field, X) - Field_getInnerSizeInDim(field, X)) / 2;
   //int boundary_y = (Field_getSizeInDim(field, Y) - Field_getInnerSizeInDim(field, Y)) / 2;
-  
+
   if ( Field_getInnerSizeInDim(field, X) <= (xpos + 2)
     || Field_getInnerSizeInDim(field, Y) <= (ypos + 2)) {
     printf("Filling_produceRunner: X/Y Werte ausserhalb des Spielfeldes oder zu nah am Rand: xpos: %d \t ypos: %d\n", xpos, ypos);
     exit(EXIT_FAILURE);
   }
-  
+
   x = xpos;
   y = ypos;
 
@@ -65,27 +65,27 @@ static void Filling_produceGlider2(Field* field, long x, long y, int value) {
 
 void Filling_produceGun(Field* field, int value, int xpos, int ypos) {
   long x, y;
-  
+
   if(Field_getInnerSizeInDim(field, X) <= (xpos + 35) || Field_getInnerSizeInDim(field, Y) <= (ypos + 8)) {
     printf("Filling_produceGun: X/Y Werte ausserhalb des Spielfeldes oder zu nah am Rand: xpos: %d \t ypos: %d\n", xpos, ypos);
     return;
   }
-  
+
   x = xpos;
   y = ypos;
-  
+
   // block left
   Field_setCell(field, x+0, y+4, value);
   Field_setCell(field, x+1, y+4, value);
   Field_setCell(field, x+0, y+5, value);
   Field_setCell(field, x+1, y+5, value);
-  
+
   // glider left
   Filling_produceGlider1(field, x + 10, y + 2, value);
-  
+
   // glider right
   Filling_produceGlider2(field, x + 20, y + 0, value);
-  
+
   // block right
   Field_setCell(field, x+34, y+2, value);
   Field_setCell(field, x+35, y+2, value);
@@ -114,11 +114,3 @@ void Filling_binaryRandomizeFrame(Field* field, int value) {
     }
   }
 }
-
-void Filling_produceLine(Field* field, int value, int xpos, int ypos)
-{
-  // TODO: implement this function
-  printf("Bitte selber implementieren!\n");
-  exit(EXIT_FAILURE);
-}
-

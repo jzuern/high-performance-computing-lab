@@ -28,7 +28,6 @@ typedef struct MPIData {
   VTK           vtk;                 // VTK writer
   bool          is_master;           // true, if the current rank indicates the master process. (Forced by convention to be rank 0)
 
-  // TODO: Insert more needed class attributes here.
   int ndims; // number of dimensions (2: x and y)
   int dims[2]; // number of cells in each dimension
   int periods[2]; // whether x/y dimension has periodic boundaries
@@ -38,11 +37,11 @@ typedef struct MPIData {
   int coords[2];
 
   // MPI Zeug
-   MPI_Comm           comm_old,comm_cart; // MPI communicators
+   MPI_Comm           commslave,comm_cart; // MPI communicators
    MPI_Group          MPI_GROUP_WORLD,all_group, allworkers_group; // MPI groups
 
    MPI_File           fh; // MPI file handle
-   MPI_Datatype       filetype; // MPI file type
+   MPI_Datatype       localarray_type,printoutarray_type,memtype; // MPI file type
 
    MPI_Status         status; // MPI status object
 

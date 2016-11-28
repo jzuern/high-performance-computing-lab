@@ -125,6 +125,8 @@ gameoflife.h
 /home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab3/field.h
 ../simdata.h
 /home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab3/simdata.h
+../mpidata.h
+/home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab3/mpidata.h
 
 /home/jzuern/Dropbox/Uni/High Performance Computing/labor/lab3/sweeps/heat.c
 stdio.h

@@ -22,7 +22,7 @@
 #include "sweeps/gameoflife.h"
 #include "sweeps/add.h"
 
-typedef void (*Sweep_func)(Field*, SimData*);
+typedef void (*Sweep_func)(Field*, SimData*, MPIData*);
 
 typedef struct Sweep_s {
   Sweep_func   exec;
@@ -51,14 +51,23 @@ int main(int argc, char** argv) {
   // 1. Initialize the simulation data. (see simdata.h)
   SimData_init(&simdata, argc, argv);
 
+
   // 2. Initialize the mpi data. (see mpidata.h/mpidata.c)
-  int px = 3; int py = 3; // number of processes in x and y direction
+  // number of processes in x and y direction
+  int px = 2;
+  int py = 2;
   MPIData_init(&mpidata, &simdata, px, py);
 
   if (!mpidata.is_master) {
+
+    printf("Hello from slave process with rank %i\n",mpidata.rank_global);
     // 3. Initialize the field. (see field.h)
     int boundarysize[2] = {1,1};
-    Field_init(&field, simdata.gsizes, boundarysize);
+
+
+    Field_init(&field, simdata.lsizes, boundarysize);
+    printf("simdata.lsizes = %i %i\n",simdata.lsizes[X],simdata.lsizes[Y] );
+    printf("field.sizes = %i %i\n",field.size[X],field.size[Y] );
 
 
     srand(mpidata.rank);
@@ -66,41 +75,53 @@ int main(int argc, char** argv) {
     // 4. Use a filling.
     Filling_binaryRandomizeFrame(&field, ALIVE);
 
+
     // 5. Exchange the ghost layers.
-    MPIData_exchangeGhostLayer(&mpidata, &field);
+    //MPIData_exchangeGhostLayer(&mpidata, &field);
 
     // 6. Swap the fields.
     Field_swap(&field);
 
-  printf("using sweep: \033[1;31m%s\033[0m\ndescription: %s\n", sweeps[simdata.sweep_num].name , sweeps[simdata.sweep_num].description);
-  printf("blocksX: %u, blocksY: %u\n", simdata.blocks[X], simdata.blocks[X]);
-  printf("blockSizeX: %u, blockSizeY: %u\n", simdata.lsizes[X], simdata.lsizes[X]);
-  printf("globalSizeX: %u, globalSizeY: %u\n", simdata.gsizes[X], simdata.gsizes[X]);
+    // printf("using sweep: \033[1;31m%s\033[0m\ndescription: %s\n", sweeps[simdata.sweep_num].name , sweeps[simdata.sweep_num].description);
+    // printf("simdata.lsizes[X]: %u, simdata.lsizes[Y]: %u\n", simdata.lsizes[X], simdata.lsizes[Y]);
+    // printf("simdata.gsizes[X]: %u, simdata.gsizes[Y]: %u\n", simdata.gsizes[X], simdata.gsizes[Y]);
 
-  // Start timer.
-  gettimeofday(&t1, NULL);
+    // Start timer.
+    gettimeofday(&t1, NULL);
+
 
 
     // 7. For each timestep
-  SIMDATA_FOR_EACH_TIMESTEP(simdata)
-  {
-    // 5.1 Call the iterator
-    sweeps[simdata.sweep_num].exec(&field, &simdata);
+    SIMDATA_FOR_EACH_TIMESTEP(simdata)
+    {
+      printf("test 3     with process %i\n",mpidata.rank_global);
+      // 5.1 Call the iterator
+      sweeps[simdata.sweep_num].exec(&field, &simdata, &mpidata);
 
-      // 7.2 Exchange the ghost layers. TODO: implement
-      //MPIData_exchangeGhostLayer(&mpidata, &field);
+        // 7.2 Exchange the ghost layers.
+        //MPIData_exchangeGhostLayer(&mpidata, &field);
 
-      // 7.3 Swap the fields
-      Field_swap(&field);
+        // 7.3 Swap the fields
+        Field_swap(&field);
 
-      // 7.4 Write the data. (see mpidata.h/mpidata.c)
-      MPIData_writeTimeStep(&mpidata, &simdata, &field, false);
+        // 7.4 Write the data. (see mpidata.h/mpidata.c)
+        MPIData_writeTimeStep(&mpidata, &simdata, &field, false);
+
+        MPI_Barrier(mpidata.commslave);
+        fflush(stdout);
     }
+
+    printf("AFTER SIMLOOP with rank %i\n",mpidata.rank_global);
 
     gettimeofday(&t2, NULL);
     elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
     elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
-    if (1 == mpidata.rank) {
+
+
+    MPI_Barrier(mpidata.commslave);fflush(stdout);
+
+
+    if (1 == mpidata.rank_global) {
       printf("Time elapsed in ms is: %f\n", elapsedTime);
     }
 
@@ -109,7 +130,7 @@ int main(int argc, char** argv) {
 
     /* Send abort message
      */
-    if (1 == mpidata.rank) {
+    if (1 == mpidata.rank_global) {
       long buffer = 0;
       MPI_Send(&buffer, 1, MPI_LONG, 0, 2, MPI_COMM_WORLD);
     }
