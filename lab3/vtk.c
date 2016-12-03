@@ -152,8 +152,7 @@ void VTK_writeData(VTK* self, int* data) {
   const long  nxy = self->size[0] * self->size[1];
 
   for (i = 0; i < nxy; i++) {
-    // value = htobe32(data[i]);
-    // fwrite(&value, sizeof(int), 1, self->fp);
+
     value = data[i];
     printf("VTK write\n");
     fwrite(&value, sizeof(int), 1, self->fp);
@@ -178,9 +177,7 @@ static size_t VTK_getHeader_internal(VTK* self, long frame, char header[2048], l
   strcat(header, float_values ? "SCALARS data float 1\n" : "SCALARS data int 1\n");
   strcat(header, "LOOKUP_TABLE default\n");
 
-  size_t realLength = strlen(header)-140;
-
-  printf("header length = %i\n", strlen(header));
+  size_t realLength = strlen(header);
 
   return realLength;
 }

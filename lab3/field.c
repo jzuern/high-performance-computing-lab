@@ -16,7 +16,10 @@ void Field_init(Field* self, int size[2], int boundarysize[2]) {
   self->data[OLD] = calloc(self->size[X]*self->size[Y], sizeof(int));
   self->data[NEW] = calloc(self->size[X]*self->size[Y], sizeof(int));
 
-  printf("in Field_init: size = %ix%i\n",self->size[X],self->size[Y]);
+  self->data_tmp = calloc(self->size[X]*self->size[Y], sizeof(int));
+
+
+  // printf("in Field_init: size = %ix%i\n",self->size[X],self->size[Y]);
 #ifdef MPI
   // transform memory size to inner size
   self->size[X] -= 2;
@@ -31,7 +34,6 @@ void Field_deinit(Field* self) {
 
 void Field_swap(Field* self) {
 
-  printf("Field_swap\n");
   int *tmp;
 
   tmp             = self->data[OLD];

@@ -48,7 +48,7 @@ static void Filling_produceGlider1(Field* field, long x, long y, int value) {
   Field_setCell(field, x+3, y+6, value);
 }
 
-static void Filling_produceGlider2(Field* field, long x, long y, int value) {
+void Filling_produceGlider2(Field* field, long x, long y, int value) {
   Field_setCell(field, x+4, y+0, value);
   Field_setCell(field, x+2, y+1, value);
   Field_setCell(field, x+4, y+1, value);
@@ -106,10 +106,10 @@ void Filling_binaryRandomizeFrame_f(Field* field, int value) {
 
 void Filling_binaryRandomizeFrame(Field* field, int value) {
   long x, y;
-  const int offset = 1;
+  const int offset = 0;
 
-  for (y = offset; y < Field_getInnerSizeInDim(field, Y) - offset; y++) {
-    for (x = offset; x < Field_getInnerSizeInDim(field, X) - offset; x++) {
+  for (y = offset; y < Field_getSizeInDim(field, Y) - offset; y++) {
+    for (x = offset; x < Field_getSizeInDim(field, X) - offset; x++) {
       Field_setCell(field, x, y, value * (random() % 2));
     }
   }

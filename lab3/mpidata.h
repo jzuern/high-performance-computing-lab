@@ -41,7 +41,10 @@ typedef struct MPIData {
    MPI_Group          MPI_GROUP_WORLD,all_group, allworkers_group; // MPI groups
 
    MPI_File           fh; // MPI file handle
-   MPI_Datatype       localarray_type,printoutarray_type,memtype; // MPI file type
+   MPI_Datatype       localarray_type,fileout_type,memtype; // MPI file type
+
+   MPI_Datatype       ghostlayerTop, ghostlayerBottom, ghostlayerLeft, ghostlayerRight, xSlice, ySlice;
+   MPI_Datatype       memlayerTop, memlayerBottom, memlayerLeft, memlayerRight;
 
    MPI_Status         status; // MPI status object
 

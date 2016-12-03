@@ -27,14 +27,15 @@
  * | +-----+ |
  * |         |
  * +---------+
- * 
+ *
  * The data attribute holds two fields and aligns the value bytes
- * in big endian 32 bit. 
+ * in big endian 32 bit.
  */
 typedef struct Field {
   int  size[2];  // The size of the field in X/Y direction
   int  boundarysize[2]; // size of the boundary
   int *data[2];  // Fields for timestep i and timestep i+1
+  int *data_tmp; // field for fileout writing
 } Field;
 
 /* Initialize the field object.
@@ -67,7 +68,7 @@ void Field_swap(Field* self);
 
 /* Get the size of the field in given direction.
  * The direction has to be either X or Y.
- * 
+ *
  * see: The X, Y macro
  */
 int Field_getSizeInDim(Field* self, int dim);

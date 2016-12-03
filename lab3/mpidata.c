@@ -37,6 +37,8 @@ void MPIData_init(MPIData* self, SimData* simdata, int px, int py) {
     //
     simdata->lsizes[X] = simdata->gsizes[X] / self->dims[X];
     simdata->lsizes[Y] = simdata->gsizes[Y] / self->dims[Y];
+
+
     /* Set periodic behavior.
      */
     self->periods[X] = 1;
@@ -57,7 +59,7 @@ void MPIData_init(MPIData* self, SimData* simdata, int px, int py) {
       exit(EXIT_FAILURE);
     }
 
-    printf("Hello from process with rank %i\n", self->rank_global);
+    // printf("Hello from process with rank %i\n", self->rank_global);
 
     /* Create two new groups, one group of all processes and one without the master
      * process.
@@ -102,44 +104,121 @@ void MPIData_init(MPIData* self, SimData* simdata, int px, int py) {
 
       /* Global indices of the first element of the local array.
        */
-      self->start_indices[0] = self->coords[0] * simdata->lsizes[0];
-      self->start_indices[1] = self->coords[1] * simdata->lsizes[1];
+      self->start_indices[0] = self->coords[0] * simdata->lsizes[X];
+      self->start_indices[1] = self->coords[1] * simdata->lsizes[Y];
 
       /* Create a derived datatype that describes the layout of the local array in the memory buffer that includes the ghost area. This is another subarray datatype!
        */
-      printf("creating subarray with start_indices = %i,%i... gsizes = %i %i .... lsizes = %i %i .... \n",self->start_indices[0],self->start_indices[1],simdata->gsizes[0],simdata->gsizes[1],simdata->lsizes[0],simdata->lsizes[1] );
-
+      printf("creating localarray_type with start_indices = %i,%i... gsizes = %i %i .... lsizes = %i %i .... \n",self->start_indices[0],self->start_indices[1],simdata->gsizes[0],simdata->gsizes[1],simdata->lsizes[X],simdata->lsizes[X]);
 
       MPI_Type_create_subarray(2, simdata->gsizes, simdata->lsizes, self->start_indices,MPI_ORDER_C, MPI_INT, &self->localarray_type);
       MPI_Type_commit(&self->localarray_type);
 
 
-      /* Set the position of the start indices to (1 1)^T
-       */ //TODO: korrekt???
-      // self->start_indices[0] = 0; // aus Folien S. 187ff
-      // self->start_indices[1] = 0;
 
-      MPI_Type_create_subarray(2, simdata->gsizes, simdata->lsizes, self->start_indices,MPI_ORDER_C, MPI_INT, &self->printoutarray_type);
-      MPI_Type_commit(&self->printoutarray_type);
+      // VERSUCH: kopiere einfach alle benötigten einträge des Felds in neues Subarray und
+      // schreibe dies in Datei. Zwar doof aber funktioniert immerhin?
 
 
-      /* Indices of the first element of the local array in the allocated array.
-       */
-      // implement: ??
+      int fileout_lsizes[2];
+      fileout_lsizes[0] = simdata->lsizes[0] - 2;
+      fileout_lsizes[1] = simdata->lsizes[1] - 2;
 
-      // veronika: Leer lassen
+      int gsizes_new[2];
+      gsizes_new[X] = simdata->gsizes[X] - 2*px;
+      gsizes_new[Y] = simdata->gsizes[Y] - 2*py;
+
+      int startindices_[2];
+      startindices_[X] = self->coords[X] * fileout_lsizes[X];
+      startindices_[Y] = self->coords[Y] * fileout_lsizes[Y];
+
+      MPI_Type_create_subarray(2, gsizes_new, fileout_lsizes, startindices_,MPI_ORDER_C, MPI_INT, &self->fileout_type);
+      MPI_Type_commit(&self->fileout_type);
+
 
 
       /* Init VTK image data.
        */
       VTK_init(&self->vtk, simdata->output);
-      VTK_setDimensions(&self->vtk, simdata->gsizes);
+      VTK_setDimensions(&self->vtk, gsizes_new); // version fileout_type
+      // VTK_setDimensions(&self->vtk, simdata->gsizes); // version localarray_type
+
+
 
       /* Init all ghost layers.
+      /////////////////////////////////////////////////////////////////////////////////
        */
-      // TODO: implement mit 8x ghost layer oder 4x?
-      // mit create subarray und dann start_indices richtig verwenden
 
+      int startindices[2];
+      int f_sizes[2];
+
+      startindices[X] = 0;
+      startindices[Y] = 0;
+      f_sizes[X] = 1;
+      f_sizes[Y] = simdata->lsizes[Y];
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->ghostlayerLeft);
+      MPI_Type_commit(&self->ghostlayerLeft);
+
+      startindices[X] = simdata->lsizes[X]-1;
+      startindices[Y] = 0;
+      f_sizes[X] = 1;
+      f_sizes[Y] = simdata->lsizes[Y];
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->ghostlayerRight);
+      MPI_Type_commit(&self->ghostlayerRight);
+
+      startindices[X] = 0;
+      startindices[Y] = 0;
+      f_sizes[X] = simdata->lsizes[X];
+      f_sizes[Y] = 1;
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->ghostlayerBottom);
+      MPI_Type_commit(&self->ghostlayerBottom);
+
+      startindices[X] = 0;
+      startindices[Y] = simdata->lsizes[Y]-1;
+      f_sizes[X] = simdata->lsizes[X];
+      f_sizes[Y] = 1;
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->ghostlayerTop);
+      MPI_Type_commit(&self->ghostlayerTop);
+
+      ////////////////////////////////////
+      // 4 times outermost layer of process cell-domain that is not ghost layer
+      ////////////////////////////////
+
+      startindices[X] = 1;
+      startindices[Y] = 0;
+      f_sizes[X] = 1;
+      f_sizes[Y] = simdata->lsizes[Y];
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->memlayerLeft);
+      MPI_Type_commit(&self->memlayerLeft);
+
+      startindices[X] = simdata->lsizes[X]-2;
+      startindices[Y] = 0;
+      f_sizes[X] = 1;
+      f_sizes[Y] = simdata->lsizes[Y];
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->memlayerRight);
+      MPI_Type_commit(&self->memlayerRight);
+
+      startindices[X] = 0;
+      startindices[Y] = 1;
+      f_sizes[X] = simdata->lsizes[X];
+      f_sizes[Y] = 1;
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->memlayerBottom);
+      MPI_Type_commit(&self->memlayerBottom);
+
+      startindices[X] = 0;
+      startindices[Y] = simdata->lsizes[Y]-2;
+      f_sizes[X] = simdata->lsizes[X];
+      f_sizes[Y] = 1;
+
+      MPI_Type_create_subarray(2, simdata->lsizes, f_sizes, startindices,MPI_ORDER_C, MPI_INT, &self->memlayerTop);
+      MPI_Type_commit(&self->memlayerTop);
 
 
 
@@ -157,7 +236,7 @@ static MPI_Offset MPIData_writeFileHeader(MPIData* self, SimData* simdata, bool 
 
 
   // Write the header to the file.
-  printf("writing file header with process %i \n", self->rank);
+  // printf("writing file header with process %i \n", self->rank);
   MPI_File_write(self->fh,header,len,MPI_FLOAT,&self->status);
 
   return (MPI_Offset)len;
@@ -172,7 +251,6 @@ void MPIData_writeTimeStep(MPIData* self, SimData* simdata, Field* field, bool f
   int        len;
 
   VTK_getFileName(&self->vtk, simdata->timestep, filename, sizeof(filename));
-  printf("filename: %s\n", filename);
 
   /* Create a new file handle for collective I/O
    */
@@ -185,13 +263,14 @@ void MPIData_writeTimeStep(MPIData* self, SimData* simdata, Field* field, bool f
 
   /* Set the file view for the file handle using collective I/O
    */
-   offset = 188;
-  //  offset = 0;
 
-   int local_array_size = simdata->lsizes[X] * simdata->lsizes[Y];
-   printf("I am process %i and my offset is %i\n",self->rank,offset + self->rank*local_array_size*sizeof(int) );
+  int local_array_size = (simdata->lsizes[X]) * (simdata->lsizes[Y]);
+
+  //  printf("I am process %i and my offset is %i\n",self->rank, offset );
   //
-  rc = MPI_File_set_view(self->fh, offset ,MPI_INT,self->localarray_type,"native", MPI_INFO_NULL); // vers 02
+  // rc = MPI_File_set_view(self->fh, offset , MPI_INT , self->localarray_type,"native", MPI_INFO_NULL); // vers localarray_type
+  rc = MPI_File_set_view(self->fh, offset , MPI_INT , self->fileout_type,"native", MPI_INFO_NULL); // vers fileout_type
+
 
   if (rc != MPI_SUCCESS) {
     MPI_Error_string(rc, buffer, &len);
@@ -199,37 +278,24 @@ void MPIData_writeTimeStep(MPIData* self, SimData* simdata, Field* field, bool f
   }
 
 
-  int x,y;
-
-  int local_array_int[4*simdata->gsizes[X]*simdata->gsizes[Y]];
-  int hh = field->size[Y];
-  int ww = field->size[X];
-
-
-  int ii = 0;
-  printf("local_array_int[i] == \n" );
-  for (y = -1; y < (hh+1); y++) {
-    for (x = -1; x < (ww+1); x++) {
-      for(int i = 0; i < self->num_tasks; i++){
-        local_array_int[ii] = Field_getCell(field,x,y);
-        printf("%i ",local_array_int[ii] );
-        ii++;
-      }
-      printf("\n");
-
-    }
-    printf("\n\n\n\n");
-  }
-
-
-
-
   /* Write the data using collective I/O
    */
-  // pointer auf feld statt buffer variable
   printf("writing file with process %i\n", self->rank);
 
-  rc = MPI_File_write_all(self->fh, local_array_int,1,self->printoutarray_type,&self->status); // vers 02
+  // rc = MPI_File_write_all(self->fh, field->data[1] ,local_array_size, MPI_INT, &self->status); // version with localarray_type
+
+  int w = simdata->lsizes[X] - 2;
+  int h = simdata->lsizes[Y] - 2;
+{
+  int c = 0;
+  for(int i = 0; i < w; i++){
+    for(int j = 0; j < h; j++){
+      field->data_tmp[j*w+i] = Field_getCell(field,i,j);;
+    }
+  }
+}
+  local_array_size = w*h;
+  rc = MPI_File_write_all(self->fh, field->data_tmp ,local_array_size, MPI_INT, &self->status); // version with fileout_type
 
   if (rc != MPI_SUCCESS) {
     MPI_Error_string(rc, buffer, &len);
@@ -241,28 +307,49 @@ void MPIData_writeTimeStep(MPIData* self, SimData* simdata, Field* field, bool f
    MPI_File_close( &self->fh ); // close with file handle
 
 
-
-   // write to console for debugging purposes:
-
-  //  printf("field for process with rank %i:\n", self->rank);
-//    for (y = -1; y < (hh+1); y++) {
-//      for (x = -1; x < (ww+1); x++) {
-//        printf("%i  ",Field_getCell(field,x,y));
-//      }
-//      printf("\n");
-//    }
-//
-//    printf("\n\n\n\n");
 }
 
 void MPIData_exchangeGhostLayer(MPIData* self, Field* field) {
-  // TODO: implement ghost layer exchange.
-  // point to point communication to and from the eight neighbors?
 
-  // MPI_sendrecv ?
-  // use MPI_Cart_shift (direction ...) to get neighbor process ranks
+  // get left and right neighbor
+  int left, right, down , up;
 
-  // benutze vorgefertigte filetypes zum Austauschen der Randlayer
+
+  MPI_Cart_shift ( self->comm_cart , 0 , 1 , & left , & right );
+  MPI_Cart_shift ( self->comm_cart , 1 , 1 , & down , & up );
+
+  // printf("my rank is %i. left  is %i, right is %i.  top  is %i. down is %i\n", self->rank, right, left,up,down);
+
+
+  // 1 - sende nach rechts und empfange das von links
+  MPI_Sendrecv(&field->data[1][0] , 1, self->memlayerRight,  right, 1,
+               &field->data[1][0] , 1, self->ghostlayerLeft, left,  1,
+               self->comm_cart, &self->status);
+
+  // 2 - sende nach links und empfange von rechts
+
+  MPI_Sendrecv(&field->data[1][0] , 1, self->memlayerLeft,  left, 2,
+              &field->data[1][0] , 1, self->ghostlayerRight, right,  2,
+              self->comm_cart, &self->status);
+
+  // 3 - sende nach unten und empfange von oben
+
+
+  MPI_Sendrecv(&field->data[1][0] , 1, self->memlayerTop,  up, 3,
+               &field->data[1][0] , 1, self->ghostlayerBottom, down,  3,
+                self->comm_cart, &self->status);
+
+
+    // 4 - sende nach oebn und empfange von unten
+
+  MPI_Sendrecv(&field->data[1][0] , 1, self->memlayerBottom,  down, 4,
+               &field->data[1][0] , 1, self->ghostlayerTop, up,  4,
+                self->comm_cart, &self->status);
+
+
+  // IMPORTANT: Zuerst Austauschen in X-Richtung, danach in Y Richtung (Konstistent!)
+
+
 
 }
 

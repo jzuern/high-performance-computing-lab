@@ -66,40 +66,33 @@ int main(int argc, char** argv) {
 
 
     Field_init(&field, simdata.lsizes, boundarysize);
-    printf("simdata.lsizes = %i %i\n",simdata.lsizes[X],simdata.lsizes[Y] );
-    printf("field.sizes = %i %i\n",field.size[X],field.size[Y] );
+    // printf("simdata.lsizes = %i %i\n",simdata.lsizes[X],simdata.lsizes[Y] );
+    // printf("field.sizes = %i %i\n",field.size[X],field.size[Y] );
 
 
     srand(mpidata.rank);
 
     // 4. Use a filling.
-    Filling_binaryRandomizeFrame(&field, ALIVE);
-
+    if(mpidata.rank == 0) Filling_produceRunner(&field, ALIVE  , 2,2);
 
     // 5. Exchange the ghost layers.
-    //MPIData_exchangeGhostLayer(&mpidata, &field);
+    MPIData_exchangeGhostLayer(&mpidata, &field);
 
     // 6. Swap the fields.
     Field_swap(&field);
-
-    // printf("using sweep: \033[1;31m%s\033[0m\ndescription: %s\n", sweeps[simdata.sweep_num].name , sweeps[simdata.sweep_num].description);
-    // printf("simdata.lsizes[X]: %u, simdata.lsizes[Y]: %u\n", simdata.lsizes[X], simdata.lsizes[Y]);
-    // printf("simdata.gsizes[X]: %u, simdata.gsizes[Y]: %u\n", simdata.gsizes[X], simdata.gsizes[Y]);
 
     // Start timer.
     gettimeofday(&t1, NULL);
 
 
-
     // 7. For each timestep
     SIMDATA_FOR_EACH_TIMESTEP(simdata)
     {
-      printf("test 3     with process %i\n",mpidata.rank_global);
       // 5.1 Call the iterator
       sweeps[simdata.sweep_num].exec(&field, &simdata, &mpidata);
 
         // 7.2 Exchange the ghost layers.
-        //MPIData_exchangeGhostLayer(&mpidata, &field);
+        MPIData_exchangeGhostLayer(&mpidata, &field);
 
         // 7.3 Swap the fields
         Field_swap(&field);
@@ -111,7 +104,7 @@ int main(int argc, char** argv) {
         fflush(stdout);
     }
 
-    printf("AFTER SIMLOOP with rank %i\n",mpidata.rank_global);
+    // printf("AFTER SIMLOOP with rank %i\n",mpidata.rank_global);
 
     gettimeofday(&t2, NULL);
     elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms

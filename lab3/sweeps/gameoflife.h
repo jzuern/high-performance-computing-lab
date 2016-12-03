@@ -13,7 +13,7 @@
 
 /* A cell which is alive.
  */
-#define ALIVE 1000
+#define ALIVE 1
 
 /* A cell which is dead.
  */
